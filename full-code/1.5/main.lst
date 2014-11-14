@@ -1,0 +1,202 @@
+                              1 ;--------------------------------------------------------
+                              2 ; File Created by SDCC : FreeWare ANSI-C Compiler
+                              3 ; Version 2.3.3 Sat Oct 11 15:48:04 2014
+                              4 
+                              5 ;--------------------------------------------------------
+                              6 	.module main
+                              7 	
+                              8 ;--------------------------------------------------------
+                              9 ; Public variables in this module
+                             10 ;--------------------------------------------------------
+                             11 	.globl _main
+                             12 	.globl _U12
+                             13 ;--------------------------------------------------------
+                             14 ; special function registers
+                             15 ;--------------------------------------------------------
+                             16 ;--------------------------------------------------------
+                             17 ; special function bits 
+                             18 ;--------------------------------------------------------
+                    00B4     19 _T1	=	0x00b4
+                             20 ;--------------------------------------------------------
+                             21 ; overlayable register banks 
+                             22 ;--------------------------------------------------------
+                             23 	.area REG_BANK_0	(REL,OVR,DATA)
+   0000                      24 	.ds 8
+                             25 ;--------------------------------------------------------
+                             26 ; internal ram data
+                             27 ;--------------------------------------------------------
+                             28 	.area DSEG    (DATA)
+                             29 ;--------------------------------------------------------
+                             30 ; overlayable items in internal ram 
+                             31 ;--------------------------------------------------------
+                             32 	.area	OSEG    (OVR,DATA)
+                             33 ;--------------------------------------------------------
+                             34 ; Stack segment in internal ram 
+                             35 ;--------------------------------------------------------
+                             36 	.area	SSEG	(DATA)
+   0000                      37 __start__stack:
+   0000                      38 	.ds	1
+                             39 
+                             40 ;--------------------------------------------------------
+                             41 ; indirectly addressable internal ram data
+                             42 ;--------------------------------------------------------
+                             43 	.area ISEG    (DATA)
+                             44 ;--------------------------------------------------------
+                             45 ; bit data
+                             46 ;--------------------------------------------------------
+                             47 	.area BSEG    (BIT)
+                             48 ;--------------------------------------------------------
+                             49 ; external ram data
+                             50 ;--------------------------------------------------------
+                             51 	.area XSEG    (XDATA)
+                    8000     52 _U12	=	0x8000
+                             53 ;--------------------------------------------------------
+                             54 ; external initialized ram data
+                             55 ;--------------------------------------------------------
+                             56 	.area XISEG   (XDATA)
+                             57 ;--------------------------------------------------------
+                             58 ; interrupt vector 
+                             59 ;--------------------------------------------------------
+                             60 	.area CSEG    (CODE)
+   0000                      61 __interrupt_vect:
+   0000 02s00r00             62 	ljmp	__sdcc_gsinit_startup
+   0003 32                   63 	reti
+   0004                      64 	.ds	7
+   000B 32                   65 	reti
+   000C                      66 	.ds	7
+   0013 32                   67 	reti
+   0014                      68 	.ds	7
+   001B 32                   69 	reti
+   001C                      70 	.ds	7
+   0023 32                   71 	reti
+   0024                      72 	.ds	7
+   002B 32                   73 	reti
+   002C                      74 	.ds	7
+                             75 ;--------------------------------------------------------
+                             76 ; global & static initialisations
+                             77 ;--------------------------------------------------------
+                             78 	.area GSINIT  (CODE)
+                             79 	.area GSFINAL (CODE)
+                             80 	.area GSINIT  (CODE)
+   0000                      81 __sdcc_gsinit_startup:
+   0000 75 81rFF             82 	mov	sp,#__start__stack - 1
+   0003 12s00r00             83 	lcall	__sdcc_external_startup
+   0006 E5 82                84 	mov	a,dpl
+   0008 60 03                85 	jz	__sdcc_init_data
+   000A 02s00r33             86 	ljmp	__sdcc_program_startup
+   000D                      87 __sdcc_init_data:
+                             88 ;	_mcs51_genXINIT() start
+   000D 74r00                89 	mov	a,#l_XINIT
+   000F 44s00                90 	orl	a,#l_XINIT>>8
+   0011 60 29                91 	jz	00003$
+   0013 74r00                92 	mov	a,#s_XINIT
+   0015 24r00                93 	add	a,#l_XINIT
+   0017 F9                   94 	mov	r1,a
+   0018 74s00                95 	mov	a,#s_XINIT>>8
+   001A 34s00                96 	addc	a,#l_XINIT>>8
+   001C FA                   97 	mov	r2,a
+   001D 90s00r00             98 	mov	dptr,#s_XINIT
+   0020 78r00                99 	mov	r0,#s_XISEG
+   0022 75 A0s00            100 	mov	p2,#(s_XISEG >> 8)
+   0025 E4                  101 00001$:	clr	a
+   0026 93                  102 	movc	a,@a+dptr
+   0027 F2                  103 	movx	@r0,a
+   0028 A3                  104 	inc	dptr
+   0029 08                  105 	inc	r0
+   002A B8 00 02            106 	cjne	r0,#0,00002$
+   002D 05 A0               107 	inc	p2
+   002F E5 82               108 00002$:	mov	a,dpl
+   0031 B5 01 F1            109 	cjne	a,ar1,00001$
+   0034 E5 83               110 	mov	a,dph
+   0036 B5 02 EC            111 	cjne	a,ar2,00001$
+   0039 75 A0 FF            112 	mov	p2,#0xFF
+   003C                     113 00003$:
+                            114 ;	_mcs51_genXINIT() end
+                            115 	.area GSFINAL (CODE)
+   0000 02s00r33            116 	ljmp	__sdcc_program_startup
+                            117 ;--------------------------------------------------------
+                            118 ; Home
+                            119 ;--------------------------------------------------------
+                            120 	.area HOME    (CODE)
+                            121 	.area CSEG    (CODE)
+                            122 ;--------------------------------------------------------
+                            123 ; code
+                            124 ;--------------------------------------------------------
+                            125 	.area CSEG    (CODE)
+   0033                     126 __sdcc_program_startup:
+   0033 12s00r38            127 	lcall	_main
+                            128 ;	return from main will lock up
+   0036 80 FE               129 	sjmp .
+                            130 ;------------------------------------------------------------
+                            131 ;Allocation info for local variables in function 'main'
+                            132 ;------------------------------------------------------------
+                            133 ;------------------------------------------------------------
+                            134 ;Z:\projects\pn1-labs\1.5\main.c:19: void main(void) {
+                            135 ;	-----------------------------------------
+                            136 ;	 function main
+                            137 ;	-----------------------------------------
+   0038                     138 _main:
+                    0002    139 	ar2 = 0x02
+                    0003    140 	ar3 = 0x03
+                    0004    141 	ar4 = 0x04
+                    0005    142 	ar5 = 0x05
+                    0006    143 	ar6 = 0x06
+                    0007    144 	ar7 = 0x07
+                    0000    145 	ar0 = 0x00
+                    0001    146 	ar1 = 0x01
+                            147 ;Z:\projects\pn1-labs\1.5\main.c:23: T1 = 1;
+                            148 ;     genAssign
+   0038 D2 B4               149 	setb	_T1
+   003A                     150 00109$:
+                            151 ;Z:\projects\pn1-labs\1.5\main.c:28: if ((U12 & 0x000E) == 0) {
+                            152 ;     genAssign
+   003A 90 80 00            153 	mov	dptr,#_U12
+   003D E0                  154 	movx	a,@dptr
+   003E FA                  155 	mov	r2,a
+                            156 ;     genAnd
+   003F 53 02 0E            157 	anl	ar2,#0x0E
+                            158 ;     genCmpEq
+                            159 ;       Peephole 132   changed ljmp to sjmp
+                            160 ;       Peephole 199   optimized misc jump sequence
+   0042 BA 00 02            161 	cjne r2,#0x00,00102$
+                            162 ;00118$:
+                            163 ;       Peephole 200   removed redundant sjmp
+   0045                     164 00119$:
+                            165 ;Z:\projects\pn1-labs\1.5\main.c:29: T1 = 0;
+                            166 ;     genAssign
+   0045 C2 B4               167 	clr	_T1
+   0047                     168 00102$:
+                            169 ;Z:\projects\pn1-labs\1.5\main.c:33: if ((U12 & 0x0007) == 0) {
+                            170 ;     genAssign
+   0047 90 80 00            171 	mov	dptr,#_U12
+   004A E0                  172 	movx	a,@dptr
+   004B FA                  173 	mov	r2,a
+                            174 ;     genAnd
+   004C 53 02 07            175 	anl	ar2,#0x07
+                            176 ;     genCmpEq
+                            177 ;       Peephole 132   changed ljmp to sjmp
+                            178 ;       Peephole 199   optimized misc jump sequence
+   004F BA 00 02            179 	cjne r2,#0x00,00115$
+                            180 ;00120$:
+                            181 ;       Peephole 200   removed redundant sjmp
+   0052                     182 00121$:
+                            183 ;Z:\projects\pn1-labs\1.5\main.c:34: T1 = 1;
+                            184 ;     genAssign
+   0052 D2 B4               185 	setb	_T1
+                            186 ;Z:\projects\pn1-labs\1.5\main.c:37: for (i = 0; i < 70; i++);
+   0054                     187 00115$:
+                            188 ;     genAssign
+   0054 7A 46               189 	mov	r2,#0x46
+   0056                     190 00107$:
+                            191 ;     genDjnz
+                            192 ;       Peephole 132   changed ljmp to sjmp
+                            193 ;       Peephole 205   optimized misc jump sequence
+   0056 DA FE               194 	djnz r2,00107$
+   0058                     195 00122$:
+   0058                     196 00123$:
+                            197 ;       Peephole 132   changed ljmp to sjmp
+   0058 80 E0               198 	sjmp 00109$
+   005A                     199 00111$:
+   005A 22                  200 	ret
+                            201 	.area CSEG    (CODE)
+                            202 	.area XINIT   (CODE)
