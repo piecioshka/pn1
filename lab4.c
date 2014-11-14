@@ -7,7 +7,6 @@
 #define SEG_G 0x20
 #define SEG_H 0x80
 
-
 #define cyfra_n 0
 #define cyfra_0 SEG_A | SEG_B | SEG_C | SEG_D | SEG_E | SEG_F
 #define cyfra_1 SEG_B | SEG_C
@@ -26,13 +25,13 @@
 #define cyfra_e SEG_A | SEG_D | SEG_E | SEG_F | SEG_G
 #define cyfra_f SEG_A | SEG_E | SEG_F | SEG_G
 
-//wyswietlacz
+// wyswietlacz
 //#define wysw_1 0xD0
 //#define wysw_2 0xE0
 //#define wysw_3 0x70
 //#define wysw_4 0xB0
 
-//wyswietlacz i klawiatura
+// wyswietlacz i klawiatura
 #define wk_1 0xDE // 1101 1110
 #define wk_2 0xED // 1110 1101
 #define wk_3 0x7B // 0111 1011
@@ -48,9 +47,7 @@ sfr at 0x8C TH0;
 sfr at 0x8A TL0;
 sfr at 0xA8 IE;
 
-code char znak[16] = {cyfra_0, cyfra_1, cyfra_2, cyfra_3, cyfra_4, cyfra_5, cyfra_6, cyfra_7,
-			  cyfra_8, cyfra_9, cyfra_a, cyfra_b, cyfra_c, cyfra_d, cyfra_e, cyfra_f
-};
+code char znak[16] = {cyfra_0, cyfra_1, cyfra_2, cyfra_3, cyfra_4, cyfra_5, cyfra_6, cyfra_7, cyfra_8, cyfra_9, cyfra_a, cyfra_b, cyfra_c, cyfra_d, cyfra_e, cyfra_f};
 
 //code char wysw[4] = {wysw_1, wysw_2, wysw_3, wysw_4};
 code char wk_[4] = {wk_1, wk_2, wk_3, wk_4};
@@ -59,40 +56,45 @@ unsigned char buffer[4] = {0, 0, 0, 0};
 unsigned char t = 0;
 unsigned char key = 0;
 
-void LED(void) interrupt 1
-{  
-   unsigned char zz;
+void LED(void) interrupt 1 {
+    unsigned char zz;
 
-   U10 = cyfra_n; //wpisanie 0 na wyswietlacz
-   U15 = wk_[t]; //wybranie 2 pole wyswietlacza i pierwszego rzedu klawiatury
+    // wpisanie 0 na wyswietlacz
+    U10 = cyfra_n;
+    U15 = wk_[t]; //wybranie 2 pole wyswietlacza i pierwszego rzedu klawiatury
 
 
-   zz = (U12 & 0xf0) >> 4; // w zz zapisane sa 0000 i pierwsze 4 bity z U12
-      
-   if(zz != 0x0f) // jakis guzik jest wcisniety
-   {
-     if(zz == 0x07) // sprawdza czy wcisniety jest 4 guzik
-       key = 0x00 | t;
-     else
-     if(zz == 0x0b) // sprawdza 3 guzik
-       key = 0x04 | t;
-     else
-     if(zz == 0x0d) // sprawdza 2 guzik 
-       key = 0x08 | t;
-     else
-     if(zz == 0x0e)
-       key = 0x0c | t; // sprawdza 1 guzik
-   }
+    zz = (U12 & 0xf0) >> 4; // w zz zapisane sa 0000 i pierwsze 4 bity z U12
 
-   U10 = buffer[t];
-   
-   t++;
-   t &= 0x03;
+    // jakis guzik jest wcisniety
+    if (zz != 0x0f) {
+        // sprawdza czy wcisniety jest 4 guzik
+        if (zz == 0x07) {
+            key = 0x00 | t;
+
+        // sprawdza 3 guzik
+        } else if (zz == 0x0b) {
+            key = 0x04 | t;
+
+        // sprawdza 2 guzik
+        } else if (zz == 0x0d) {
+            key = 0x08 | t;
+
+        // sprawdza 1 guzik
+        } else if (zz == 0x0e) {
+            key = 0x0c | t;
+        }
+    }
+
+    U10 = buffer[t];
+
+    t++;
+    t &= 0x03;
 }
 
 //-------------------------------------------------------------------
-void InitLED(void)
-{
+
+void InitLED(void) {
    TMOD = (TMOD & 0xf0) | 0x02;
    TCON = 0x10;
    TL0 = TH0 = 0x06;
@@ -100,11 +102,12 @@ void InitLED(void)
 }
 
 //-------------------------------------------------------------------
-void main(void){
+
+void main(void) {
   
    InitLED();
    
-   for(;;){
+   for (;;) {
       buffer[0] = znak[~U12 & 0x0f]; // wpisanie do buffer[0] wartosci z dolnej klawiatury
       buffer[1] = znak[key];
    }

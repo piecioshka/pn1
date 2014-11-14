@@ -31,6 +31,7 @@
 #define wysw_4 0xB0
 
 //------------------------------------------------------------------------------
+
 xdata at 0x8000 unsigned char U15;
 xdata at 0xFFFF unsigned char U10;
 
@@ -41,9 +42,8 @@ sfr at 0x8A TL0;
 sfr at 0xA8 IE;
 
 //------------------------------------------------------------------------------
-code char znak[16] = {cyfra_0, cyfra_1, cyfra_2, cyfra_3, cyfra_4, cyfra_5, cyfra_6, cyfra_7,
-			  cyfra_8, cyfra_9, cyfra_a, cyfra_b, cyfra_c, cyfra_d, cyfra_e, cyfra_f
-};
+
+code char znak[16] = {cyfra_0, cyfra_1, cyfra_2, cyfra_3, cyfra_4, cyfra_5, cyfra_6, cyfra_7, cyfra_8, cyfra_9, cyfra_a, cyfra_b, cyfra_c, cyfra_d, cyfra_e, cyfra_f};
 
 code char wysw[4] = {wysw_1, wysw_2, wysw_3, wysw_4};
 
@@ -52,47 +52,54 @@ code char wysw[4] = {wysw_1, wysw_2, wysw_3, wysw_4};
 unsigned char r = 0;
 unsigned char buffer[4] = {0, 0, 0, 0};
 
-void LED(void) interrupt 1
-{  
-   U10 = cyfra_n; //wylaczenie poprzedniego wyswietlacza
-   U15 = wysw[r]; // wybranie wyswietlacza
-   U10 = znak[buffer[r]];  //wstawienie wartosci
+void LED(void) interrupt 1 {
+    // wylaczenie poprzedniego wyswietlacza
+    U10 = cyfra_n;
 
-   r++;
-   r &= 0x03;
+    // wybranie wyswietlacza
+    U15 = wysw[r];
+
+    // wstawienie wartosci
+    U10 = znak[buffer[r]];
+
+    r++;
+    r &= 0x03;
 }
 
 //------------------------------------------------------------------------------
+
 #define _CONST 0x06
 
-void Init(void){
- TMOD = (TMOD & 0xf0) | 0x02;
- TCON = 0x10;	  
- TL0 = TH0 = _CONST;		  
- IE = 0x82;//10000010;		  
+void Init(void) {
+    TMOD = (TMOD & 0xf0) | 0x02;
+    TCON = 0x10;
+    TL0 = TH0 = _CONST;
+    IE = 0x82; // 10000010;
 }
 
 //------------------------------------------------------------------------------
-void pause(){
+
+void pause() {
    int i = 0;
-   for(i = 0; i < 255; i++);
+   for (i = 0; i < 255; i++);
 }
 
 //------------------------------------------------------------------------------
-void main(void){
+
+void main(void) {
    unsigned char r = 0;
   
    Init();
    
-   for(;;){
+   for (;;) {
       pause();
       
-      if(r == 255){
+      if (r == 255) {
            buffer[1]++; 
            buffer[1] = buffer[1] & 0x0f;
            buffer[0] = 0x0f - buffer[1];
            r = 0;
-      }     
+      }
       
       r++; 
    }
