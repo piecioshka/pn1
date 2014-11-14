@@ -25,13 +25,13 @@
 #define cyfra_e SEG_A | SEG_D | SEG_E | SEG_F | SEG_G
 #define cyfra_f SEG_A | SEG_E | SEG_F | SEG_G
 
-// wyswietlacz
+// wyświetlacz
 //#define wysw_1 0xD0
 //#define wysw_2 0xE0
 //#define wysw_3 0x70
 //#define wysw_4 0xB0
 
-// wyswietlacz i klawiatura
+// wyświetlacz i klawiatura
 #define wk_1 0xDE // 1101 1110
 #define wk_2 0xED // 1110 1101
 #define wk_3 0x7B // 0111 1011
@@ -59,28 +59,29 @@ unsigned char key = 0;
 void LED(void) interrupt 1 {
     unsigned char zz;
 
-    // wpisanie 0 na wyswietlacz
+    // Wpisanie 0 na wyświetlacz.
     U10 = cyfra_n;
-    U15 = wk_[t]; //wybranie 2 pole wyswietlacza i pierwszego rzedu klawiatury
 
+    // Wybranie 2 pole wyświetlacza i pierwszego rzędu klawiatury.
+    U15 = wk_[t];
 
     zz = (U12 & 0xf0) >> 4; // w zz zapisane sa 0000 i pierwsze 4 bity z U12
 
-    // jakis guzik jest wcisniety
+    // Jakiś guzik jest wciśnięty.
     if (zz != 0x0f) {
-        // sprawdza czy wcisniety jest 4 guzik
+        // Sprawdza czy wciśnięty jest 4 guzik.
         if (zz == 0x07) {
             key = 0x00 | t;
 
-        // sprawdza 3 guzik
+        // Sprawdza 3 guzik.
         } else if (zz == 0x0b) {
             key = 0x04 | t;
 
-        // sprawdza 2 guzik
+        // Sprawdza 2 guzik.
         } else if (zz == 0x0d) {
             key = 0x08 | t;
 
-        // sprawdza 1 guzik
+        // Sprawdza 1 guzik.
         } else if (zz == 0x0e) {
             key = 0x0c | t;
         }
@@ -95,20 +96,21 @@ void LED(void) interrupt 1 {
 //-------------------------------------------------------------------
 
 void InitLED(void) {
-   TMOD = (TMOD & 0xf0) | 0x02;
-   TCON = 0x10;
-   TL0 = TH0 = 0x06;
-   IE = 0x82;
+    TMOD = (TMOD & 0xf0) | 0x02;
+    TCON = 0x10;
+    TL0 = TH0 = 0x06;
+    IE = 0x82;
 }
 
 //-------------------------------------------------------------------
 
 void main(void) {
-  
-   InitLED();
-   
-   for (;;) {
-      buffer[0] = znak[~U12 & 0x0f]; // wpisanie do buffer[0] wartosci z dolnej klawiatury
-      buffer[1] = znak[key];
-   }
+
+    InitLED();
+
+    for (;;) {
+        // Wpisanie do buffer[0] wartości z dolnej klawiatury.
+        buffer[0] = znak[~U12 & 0x0f];
+        buffer[1] = znak[key];
+    }
 }

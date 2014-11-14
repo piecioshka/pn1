@@ -53,13 +53,13 @@ unsigned char r = 0;
 unsigned char buffer[4] = {0, 0, 0, 0};
 
 void LED(void) interrupt 1 {
-    // wylaczenie poprzedniego wyswietlacza
+    // Wyłączenie poprzedniego wyświetlacza.
     U10 = cyfra_n;
 
-    // wybranie wyswietlacza
+    // Wybranie wyświetlacza.
     U15 = wysw[r];
 
-    // wstawienie wartosci
+    // Wstawienie wartości
     U10 = znak[buffer[r]];
 
     r++;

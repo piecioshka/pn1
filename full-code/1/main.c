@@ -5,12 +5,12 @@
 //  - PUT char "q" into Tera Term
 //  - PASTE onto Tera Term (alt+v)
 
-// Deklaracje zmiennych zwi¹zanych ze sprzêtem
+// Deklaracje zmiennych zwiÄ…zanych ze sprzÄ™tem
 // powinny byc globalne!
 
-// Deklaracja zmiennej powi¹zanej ze sprzêtem
+// Deklaracja zmiennej powiÄ…zanej ze sprzÄ™tem
 //  - "sbit": 1-bitowa zmienna
-//  - "at 0xB4": lokalizacja miejsca w pamiêci
+//  - "at 0xB4": lokalizacja miejsca w pamiÄ™ci
 sbit at 0xB4 T1;
 
 void main(void) {

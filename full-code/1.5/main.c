@@ -5,15 +5,15 @@
 //  - PUT char "q" into Tera Term
 //  - PASTE onto Tera Term (alt+v)
 
-// Deklaracje zmiennych zwi�zanych ze sprz�tem
+// Deklaracje zmiennych związanych ze sprzętem
 // powinny byc globalne!
 
-// Deklaracja zmiennej powizanej z klawiatura
+// Deklaracja zmiennej powiązanej z klawiatura
 xdata at 0x8000 unsigned char U12;
 
-// Deklaracja zmiennej powi�zanej ze sprz�tem
+// Deklaracja zmiennej powiązanej ze sprzętem
 //  - "sbit": 1-bitowa zmienna
-//  - "at 0xB4": lokalizacja miejsca w pami�ci
+//  - "at 0xB4": lokalizacja miejsca w pamięci
 sbit at 0xB4 T1;
 
 void main(void) {
@@ -24,12 +24,12 @@ void main(void) {
 
     // Specyficzne dla programowania niskopoziomowego.
     for (;;) {
-    	// Wlaczenie
-    	if ((U12 & 0x000E) == 0) {
+        // Włączenie
+        if ((U12 & 0x000E) == 0) {
             T1 = 0;
         }
         
-        // Wylaczenie
+        // Wyłączenie
         if ((U12 & 0x0007) == 0) {
             T1 = 1;
         }
