@@ -88,19 +88,19 @@ void pause() {
 
 void main(void) {
    unsigned char r = 0;
-  
+
    Init();
-   
+
    for (;;) {
       pause();
-      
+
       if (r == 255) {
-           buffer[1]++; 
+           buffer[1]++;
            buffer[1] = buffer[1] & 0x0f;
            buffer[0] = 0x0f - buffer[1];
            r = 0;
       }
-      
+
       r++; 
    }
 }
