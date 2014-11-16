@@ -1,0 +1,592 @@
+                              1 ;--------------------------------------------------------
+                              2 ; File Created by SDCC : FreeWare ANSI-C Compiler
+                              3 ; Version 2.3.3 Sat Nov 15 15:48:39 2014
+                              4 
+                              5 ;--------------------------------------------------------
+                              6 	.module main
+                              7 	
+                              8 ;--------------------------------------------------------
+                              9 ; Public variables in this module
+                             10 ;--------------------------------------------------------
+                             11 	.globl _main
+                             12 	.globl _fn_putchar
+                             13 	.globl _fn_getchar
+                             14 ;--------------------------------------------------------
+                             15 ; special function registers
+                             16 ;--------------------------------------------------------
+                    0099     17 _SBUF	=	0x0099
+                    0098     18 _SCON	=	0x0098
+                    0089     19 _TMOD	=	0x0089
+                    0088     20 _TCON	=	0x0088
+                    0087     21 _PCON	=	0x0087
+                    008D     22 _TH1	=	0x008d
+                    008B     23 _TL1	=	0x008b
+                             24 ;--------------------------------------------------------
+                             25 ; special function bits 
+                             26 ;--------------------------------------------------------
+                    0099     27 _TI	=	0x0099
+                    0098     28 _RI	=	0x0098
+                             29 ;--------------------------------------------------------
+                             30 ; overlayable register banks 
+                             31 ;--------------------------------------------------------
+                             32 	.area REG_BANK_0	(REL,OVR,DATA)
+   0000                      33 	.ds 8
+                             34 ;--------------------------------------------------------
+                             35 ; internal ram data
+                             36 ;--------------------------------------------------------
+                             37 	.area DSEG    (DATA)
+                             38 ;--------------------------------------------------------
+                             39 ; overlayable items in internal ram 
+                             40 ;--------------------------------------------------------
+                             41 	.area	OSEG    (OVR,DATA)
+                             42 	.area	OSEG    (OVR,DATA)
+                             43 ;--------------------------------------------------------
+                             44 ; Stack segment in internal ram 
+                             45 ;--------------------------------------------------------
+                             46 	.area	SSEG	(DATA)
+   0000                      47 __start__stack:
+   0000                      48 	.ds	1
+                             49 
+                             50 ;--------------------------------------------------------
+                             51 ; indirectly addressable internal ram data
+                             52 ;--------------------------------------------------------
+                             53 	.area ISEG    (DATA)
+                             54 ;--------------------------------------------------------
+                             55 ; bit data
+                             56 ;--------------------------------------------------------
+                             57 	.area BSEG    (BIT)
+                             58 ;--------------------------------------------------------
+                             59 ; external ram data
+                             60 ;--------------------------------------------------------
+                             61 	.area XSEG    (XDATA)
+                             62 ;--------------------------------------------------------
+                             63 ; external initialized ram data
+                             64 ;--------------------------------------------------------
+                             65 	.area XISEG   (XDATA)
+                             66 ;--------------------------------------------------------
+                             67 ; interrupt vector 
+                             68 ;--------------------------------------------------------
+                             69 	.area CSEG    (CODE)
+   0000                      70 __interrupt_vect:
+   0000 02s00r00             71 	ljmp	__sdcc_gsinit_startup
+   0003 32                   72 	reti
+   0004                      73 	.ds	7
+   000B 32                   74 	reti
+   000C                      75 	.ds	7
+   0013 32                   76 	reti
+   0014                      77 	.ds	7
+   001B 32                   78 	reti
+   001C                      79 	.ds	7
+   0023 32                   80 	reti
+   0024                      81 	.ds	7
+   002B 32                   82 	reti
+   002C                      83 	.ds	7
+                             84 ;--------------------------------------------------------
+                             85 ; global & static initialisations
+                             86 ;--------------------------------------------------------
+                             87 	.area GSINIT  (CODE)
+                             88 	.area GSFINAL (CODE)
+                             89 	.area GSINIT  (CODE)
+   0000                      90 __sdcc_gsinit_startup:
+   0000 75 81rFF             91 	mov	sp,#__start__stack - 1
+   0003 12s00r00             92 	lcall	__sdcc_external_startup
+   0006 E5 82                93 	mov	a,dpl
+   0008 60 03                94 	jz	__sdcc_init_data
+   000A 02s00r33             95 	ljmp	__sdcc_program_startup
+   000D                      96 __sdcc_init_data:
+                             97 ;	_mcs51_genXINIT() start
+   000D 74r00                98 	mov	a,#l_XINIT
+   000F 44s00                99 	orl	a,#l_XINIT>>8
+   0011 60 29               100 	jz	00003$
+   0013 74r00               101 	mov	a,#s_XINIT
+   0015 24r00               102 	add	a,#l_XINIT
+   0017 F9                  103 	mov	r1,a
+   0018 74s00               104 	mov	a,#s_XINIT>>8
+   001A 34s00               105 	addc	a,#l_XINIT>>8
+   001C FA                  106 	mov	r2,a
+   001D 90s00r00            107 	mov	dptr,#s_XINIT
+   0020 78r00               108 	mov	r0,#s_XISEG
+   0022 75 A0s00            109 	mov	p2,#(s_XISEG >> 8)
+   0025 E4                  110 00001$:	clr	a
+   0026 93                  111 	movc	a,@a+dptr
+   0027 F2                  112 	movx	@r0,a
+   0028 A3                  113 	inc	dptr
+   0029 08                  114 	inc	r0
+   002A B8 00 02            115 	cjne	r0,#0,00002$
+   002D 05 A0               116 	inc	p2
+   002F E5 82               117 00002$:	mov	a,dpl
+   0031 B5 01 F1            118 	cjne	a,ar1,00001$
+   0034 E5 83               119 	mov	a,dph
+   0036 B5 02 EC            120 	cjne	a,ar2,00001$
+   0039 75 A0 FF            121 	mov	p2,#0xFF
+   003C                     122 00003$:
+                            123 ;	_mcs51_genXINIT() end
+                            124 	.area GSFINAL (CODE)
+   0000 02s00r33            125 	ljmp	__sdcc_program_startup
+                            126 ;--------------------------------------------------------
+                            127 ; Home
+                            128 ;--------------------------------------------------------
+                            129 	.area HOME    (CODE)
+                            130 	.area CSEG    (CODE)
+                            131 ;--------------------------------------------------------
+                            132 ; code
+                            133 ;--------------------------------------------------------
+                            134 	.area CSEG    (CODE)
+   0033                     135 __sdcc_program_startup:
+   0033 12s00r54            136 	lcall	_main
+                            137 ;	return from main will lock up
+   0036 80 FE               138 	sjmp .
+                            139 ;------------------------------------------------------------
+                            140 ;Allocation info for local variables in function 'fn_getchar'
+                            141 ;------------------------------------------------------------
+                            142 ;------------------------------------------------------------
+                            143 ;main.c:21: char fn_getchar() {
+                            144 ;	-----------------------------------------
+                            145 ;	 function fn_getchar
+                            146 ;	-----------------------------------------
+   0038                     147 _fn_getchar:
+                    0002    148 	ar2 = 0x02
+                    0003    149 	ar3 = 0x03
+                    0004    150 	ar4 = 0x04
+                    0005    151 	ar5 = 0x05
+                    0006    152 	ar6 = 0x06
+                    0007    153 	ar7 = 0x07
+                    0000    154 	ar0 = 0x00
+                    0001    155 	ar1 = 0x01
+                            156 ;main.c:25: while (RI == 0);
+   0038                     157 00101$:
+                            158 ;     genNot
+   0038 A2 98               159 	mov	c,_RI
+   003A B3                  160 	cpl	c
+   003B E4                  161 	clr	a
+   003C 33                  162 	rlc	a
+                            163 ;     genIfx
+                            164 ;       Peephole 105   removed redundant mov
+   003D FA                  165 	mov  r2,a
+                            166 ;     genIfxJump
+                            167 ;       Peephole 109   removed ljmp by inverse jump logic
+   003E 70 F8               168 	jnz  00101$
+   0040                     169 00108$:
+                            170 ;main.c:26: RI = 0;
+                            171 ;     genAssign
+   0040 C2 98               172 	clr	_RI
+                            173 ;main.c:28: znak = SBUF; 
+                            174 ;     genAssign
+   0042 85 99 82            175 	mov	dpl,_SBUF
+                            176 ;main.c:29: return znak;
+                            177 ;     genRet
+   0045                     178 00104$:
+   0045 22                  179 	ret
+                            180 ;------------------------------------------------------------
+                            181 ;Allocation info for local variables in function 'fn_putchar'
+                            182 ;------------------------------------------------------------
+                            183 ;------------------------------------------------------------
+                            184 ;main.c:32: fn_putchar(char znak) {
+                            185 ;	-----------------------------------------
+                            186 ;	 function fn_putchar
+                            187 ;	-----------------------------------------
+   0046                     188 _fn_putchar:
+                            189 ;     genReceive
+   0046 85 82 99            190 	mov	_SBUF,dpl
+                            191 ;main.c:35: while (TI == 0);
+   0049                     192 00101$:
+                            193 ;     genNot
+   0049 A2 99               194 	mov	c,_TI
+   004B B3                  195 	cpl	c
+   004C E4                  196 	clr	a
+   004D 33                  197 	rlc	a
+                            198 ;     genIfx
+                            199 ;       Peephole 105   removed redundant mov
+   004E FA                  200 	mov  r2,a
+                            201 ;     genIfxJump
+                            202 ;       Peephole 109   removed ljmp by inverse jump logic
+   004F 70 F8               203 	jnz  00101$
+   0051                     204 00108$:
+                            205 ;main.c:36: TI = 0;
+                            206 ;     genAssign
+   0051 C2 99               207 	clr	_TI
+   0053                     208 00104$:
+   0053 22                  209 	ret
+                            210 ;------------------------------------------------------------
+                            211 ;Allocation info for local variables in function 'main'
+                            212 ;------------------------------------------------------------
+                            213 ;a                         Allocated to registers r2 
+                            214 ;b                         Allocated to registers r4 
+                            215 ;a1                        Allocated to registers r2 
+                            216 ;a2                        Allocated to registers r3 
+                            217 ;b1                        Allocated to registers r4 
+                            218 ;b2                        Allocated to registers r5 
+                            219 ;c                         Allocated to registers r5 
+                            220 ;o                         Allocated to registers r3 
+                            221 ;r                         Allocated to registers r5 
+                            222 ;------------------------------------------------------------
+                            223 ;main.c:39: void main(void) {
+                            224 ;	-----------------------------------------
+                            225 ;	 function main
+                            226 ;	-----------------------------------------
+   0054                     227 _main:
+                            228 ;main.c:47: SCON = 0x50;
+                            229 ;     genAssign
+   0054 75 98 50            230 	mov	_SCON,#0x50
+                            231 ;main.c:50: TMOD &= 0x0f;
+                            232 ;     genAnd
+   0057 53 89 0F            233 	anl	_TMOD,#0x0F
+                            234 ;main.c:51: TMOD |= 0x20;
+                            235 ;     genOr
+   005A 43 89 20            236 	orl	_TMOD,#0x20
+                            237 ;main.c:54: TCON = 0x40;
+                            238 ;     genAssign
+   005D 75 88 40            239 	mov	_TCON,#0x40
+                            240 ;main.c:55: PCON = 0x80;
+                            241 ;     genAssign
+   0060 75 87 80            242 	mov	_PCON,#0x80
+                            243 ;main.c:58: TH1 = TL1 = 253;
+                            244 ;     genAssign
+   0063 75 8B FD            245 	mov	_TL1,#0xFD
+                            246 ;     genAssign
+   0066 75 8D FD            247 	mov	_TH1,#0xFD
+   0069                     248 00110$:
+                            249 ;main.c:62: a1 = fn_getchar();		
+                            250 ;     genCall
+   0069 12s00r38            251 	lcall	_fn_getchar
+   006C E5 82               252 	mov	a,dpl
+                            253 ;     genAssign
+   006E FA                  254 	mov	r2,a
+                            255 ;main.c:63: fn_putchar(a1);
+                            256 ;     genCall
+   006F 8A 82               257 	mov	dpl,r2
+   0071 C0 02               258 	push	ar2
+   0073 12s00r46            259 	lcall	_fn_putchar
+   0076 D0 02               260 	pop	ar2
+                            261 ;main.c:64: a2 = fn_getchar();
+                            262 ;     genCall
+   0078 C0 02               263 	push	ar2
+   007A 12s00r38            264 	lcall	_fn_getchar
+   007D E5 82               265 	mov	a,dpl
+   007F D0 02               266 	pop	ar2
+                            267 ;     genAssign
+   0081 FB                  268 	mov	r3,a
+                            269 ;main.c:65: fn_putchar(a2);
+                            270 ;     genCall
+   0082 8B 82               271 	mov	dpl,r3
+   0084 C0 02               272 	push	ar2
+   0086 C0 03               273 	push	ar3
+   0088 12s00r46            274 	lcall	_fn_putchar
+   008B D0 03               275 	pop	ar3
+   008D D0 02               276 	pop	ar2
+                            277 ;main.c:67: a = (a1 -'0') * 10 + (a2 - '0');
+                            278 ;     genMinus
+   008F EA                  279 	mov	a,r2
+   0090 24 D0               280 	add	a,#0xd0
+                            281 ;     genMult
+                            282 ;     genMultOneByte
+   0092 C2 D5               283 	clr	F0
+   0094 30 E7 04            284 	jnb	acc.7,00118$
+   0097 D2 D5               285 	setb	F0
+   0099 F4                  286 	cpl	a
+   009A 04                  287 	inc	a
+   009B                     288 00118$:
+   009B 75 F0 0A            289 	mov	b,#0x0a
+   009E A4                  290 	mul	ab
+   009F 30 D5 0A            291 	jnb	F0,00119$
+   00A2 F4                  292 	cpl	a
+   00A3 24 01               293 	add	a,#1
+   00A5 C5 F0               294 	xch	a,b
+   00A7 F4                  295 	cpl	a
+   00A8 34 00               296 	addc	a,#0
+   00AA C5 F0               297 	xch	a,b
+   00AC                     298 00119$:
+   00AC FA                  299 	mov	r2,a
+   00AD AC F0               300 	mov	r4,b
+                            301 ;     genMinus
+   00AF EB                  302 	mov	a,r3
+   00B0 24 D0               303 	add	a,#0xd0
+                            304 ;     genCast
+                            305 ;       Peephole 105   removed redundant mov
+   00B2 FB                  306 	mov  r3,a
+   00B3 33                  307 	rlc	a
+   00B4 95 E0               308 	subb	a,acc
+   00B6 FD                  309 	mov	r5,a
+                            310 ;     genPlus
+                            311 ;       Peephole 236g
+   00B7 EB                  312 	mov  a,r3
+                            313 ;       Peephole 236a
+   00B8 2A                  314 	add  a,r2
+   00B9 FA                  315 	mov	r2,a
+                            316 ;       Peephole 236g
+   00BA ED                  317 	mov  a,r5
+                            318 ;       Peephole 236b
+   00BB 3C                  319 	addc  a,r4
+   00BC FC                  320 	mov	r4,a
+                            321 ;     genCast
+                            322 ;main.c:69: o = fn_getchar();
+                            323 ;     genCall
+   00BD C0 02               324 	push	ar2
+   00BF 12s00r38            325 	lcall	_fn_getchar
+   00C2 E5 82               326 	mov	a,dpl
+   00C4 D0 02               327 	pop	ar2
+                            328 ;     genAssign
+   00C6 FB                  329 	mov	r3,a
+                            330 ;main.c:70: fn_putchar(o);
+                            331 ;     genCall
+   00C7 8B 82               332 	mov	dpl,r3
+   00C9 C0 02               333 	push	ar2
+   00CB C0 03               334 	push	ar3
+   00CD 12s00r46            335 	lcall	_fn_putchar
+   00D0 D0 03               336 	pop	ar3
+   00D2 D0 02               337 	pop	ar2
+                            338 ;main.c:72: b1 = fn_getchar();		
+                            339 ;     genCall
+   00D4 C0 02               340 	push	ar2
+   00D6 C0 03               341 	push	ar3
+   00D8 12s00r38            342 	lcall	_fn_getchar
+   00DB E5 82               343 	mov	a,dpl
+   00DD D0 03               344 	pop	ar3
+   00DF D0 02               345 	pop	ar2
+                            346 ;     genAssign
+   00E1 FC                  347 	mov	r4,a
+                            348 ;main.c:73: fn_putchar(b1);
+                            349 ;     genCall
+   00E2 8C 82               350 	mov	dpl,r4
+   00E4 C0 02               351 	push	ar2
+   00E6 C0 03               352 	push	ar3
+   00E8 C0 04               353 	push	ar4
+   00EA 12s00r46            354 	lcall	_fn_putchar
+   00ED D0 04               355 	pop	ar4
+   00EF D0 03               356 	pop	ar3
+   00F1 D0 02               357 	pop	ar2
+                            358 ;main.c:74: b2 = fn_getchar();
+                            359 ;     genCall
+   00F3 C0 02               360 	push	ar2
+   00F5 C0 03               361 	push	ar3
+   00F7 C0 04               362 	push	ar4
+   00F9 12s00r38            363 	lcall	_fn_getchar
+   00FC E5 82               364 	mov	a,dpl
+   00FE D0 04               365 	pop	ar4
+   0100 D0 03               366 	pop	ar3
+   0102 D0 02               367 	pop	ar2
+                            368 ;     genAssign
+   0104 FD                  369 	mov	r5,a
+                            370 ;main.c:75: fn_putchar(b2);
+                            371 ;     genCall
+   0105 8D 82               372 	mov	dpl,r5
+   0107 C0 02               373 	push	ar2
+   0109 C0 03               374 	push	ar3
+   010B C0 04               375 	push	ar4
+   010D C0 05               376 	push	ar5
+   010F 12s00r46            377 	lcall	_fn_putchar
+   0112 D0 05               378 	pop	ar5
+   0114 D0 04               379 	pop	ar4
+   0116 D0 03               380 	pop	ar3
+   0118 D0 02               381 	pop	ar2
+                            382 ;main.c:77: b = (b1 - '0') * 10 + (b2 - '0');
+                            383 ;     genMinus
+   011A EC                  384 	mov	a,r4
+   011B 24 D0               385 	add	a,#0xd0
+                            386 ;     genMult
+                            387 ;     genMultOneByte
+   011D C2 D5               388 	clr	F0
+   011F 30 E7 04            389 	jnb	acc.7,00120$
+   0122 D2 D5               390 	setb	F0
+   0124 F4                  391 	cpl	a
+   0125 04                  392 	inc	a
+   0126                     393 00120$:
+   0126 75 F0 0A            394 	mov	b,#0x0a
+   0129 A4                  395 	mul	ab
+   012A 30 D5 0A            396 	jnb	F0,00121$
+   012D F4                  397 	cpl	a
+   012E 24 01               398 	add	a,#1
+   0130 C5 F0               399 	xch	a,b
+   0132 F4                  400 	cpl	a
+   0133 34 00               401 	addc	a,#0
+   0135 C5 F0               402 	xch	a,b
+   0137                     403 00121$:
+   0137 FC                  404 	mov	r4,a
+   0138 AE F0               405 	mov	r6,b
+                            406 ;     genMinus
+   013A ED                  407 	mov	a,r5
+   013B 24 D0               408 	add	a,#0xd0
+                            409 ;     genCast
+                            410 ;       Peephole 105   removed redundant mov
+   013D FD                  411 	mov  r5,a
+   013E 33                  412 	rlc	a
+   013F 95 E0               413 	subb	a,acc
+   0141 FF                  414 	mov	r7,a
+                            415 ;     genPlus
+                            416 ;       Peephole 236g
+   0142 ED                  417 	mov  a,r5
+                            418 ;       Peephole 236a
+   0143 2C                  419 	add  a,r4
+   0144 FC                  420 	mov	r4,a
+                            421 ;       Peephole 236g
+   0145 EF                  422 	mov  a,r7
+                            423 ;       Peephole 236b
+   0146 3E                  424 	addc  a,r6
+   0147 FE                  425 	mov	r6,a
+                            426 ;     genCast
+                            427 ;main.c:79: c = fn_getchar();
+                            428 ;     genCall
+   0148 C0 02               429 	push	ar2
+   014A C0 03               430 	push	ar3
+   014C C0 04               431 	push	ar4
+   014E 12s00r38            432 	lcall	_fn_getchar
+   0151 E5 82               433 	mov	a,dpl
+   0153 D0 04               434 	pop	ar4
+   0155 D0 03               435 	pop	ar3
+   0157 D0 02               436 	pop	ar2
+                            437 ;     genAssign
+   0159 FD                  438 	mov	r5,a
+                            439 ;main.c:80: fn_putchar(c);
+                            440 ;     genCall
+   015A 8D 82               441 	mov	dpl,r5
+   015C C0 02               442 	push	ar2
+   015E C0 03               443 	push	ar3
+   0160 C0 04               444 	push	ar4
+   0162 C0 05               445 	push	ar5
+   0164 12s00r46            446 	lcall	_fn_putchar
+   0167 D0 05               447 	pop	ar5
+   0169 D0 04               448 	pop	ar4
+   016B D0 03               449 	pop	ar3
+   016D D0 02               450 	pop	ar2
+                            451 ;main.c:82: if (c == ' ' || c == '=') {
+                            452 ;     genCmpEq
+   016F BD 20 02            453 	cjne	r5,#0x20,00122$
+                            454 ;       Peephole 132   changed ljmp to sjmp
+   0172 80 08               455 	sjmp 00106$
+   0174                     456 00122$:
+                            457 ;     genCmpEq
+   0174 BD 3D 02            458 	cjne	r5,#0x3D,00123$
+   0177 80 03               459 	sjmp	00124$
+   0179                     460 00123$:
+   0179 02s00r69            461 	ljmp	00110$
+   017C                     462 00124$:
+   017C                     463 00106$:
+                            464 ;main.c:83: fn_putchar('=');
+                            465 ;     genCall
+   017C 75 82 3D            466 	mov	dpl,#0x3D
+   017F C0 02               467 	push	ar2
+   0181 C0 03               468 	push	ar3
+   0183 C0 04               469 	push	ar4
+   0185 12s00r46            470 	lcall	_fn_putchar
+   0188 D0 04               471 	pop	ar4
+   018A D0 03               472 	pop	ar3
+   018C D0 02               473 	pop	ar2
+                            474 ;main.c:85: if (o == '+') {
+                            475 ;     genCmpEq
+                            476 ;       Peephole 132   changed ljmp to sjmp
+                            477 ;       Peephole 199   optimized misc jump sequence
+   018E BB 2B 05            478 	cjne r3,#0x2B,00104$
+                            479 ;00125$:
+                            480 ;       Peephole 200   removed redundant sjmp
+   0191                     481 00126$:
+                            482 ;main.c:86: r = a + b;
+                            483 ;     genPlus
+                            484 ;       Peephole 236g
+   0191 EC                  485 	mov  a,r4
+                            486 ;       Peephole 236a
+   0192 2A                  487 	add  a,r2
+   0193 FD                  488 	mov	r5,a
+                            489 ;       Peephole 132   changed ljmp to sjmp
+   0194 80 07               490 	sjmp 00105$
+   0196                     491 00104$:
+                            492 ;main.c:87: } else if (o == '-') {
+                            493 ;     genCmpEq
+                            494 ;       Peephole 132   changed ljmp to sjmp
+                            495 ;       Peephole 199   optimized misc jump sequence
+   0196 BB 2D 04            496 	cjne r3,#0x2D,00105$
+                            497 ;00127$:
+                            498 ;       Peephole 200   removed redundant sjmp
+   0199                     499 00128$:
+                            500 ;main.c:88: r = a - b;
+                            501 ;     genMinus
+   0199 EA                  502 	mov	a,r2
+   019A C3                  503 	clr	c
+                            504 ;       Peephole 236l
+   019B 9C                  505 	subb  a,r4
+   019C FD                  506 	mov	r5,a
+   019D                     507 00105$:
+                            508 ;main.c:91: fn_putchar((r % 100) + '0');
+                            509 ;     genMod
+                            510 ;     genModOneByte
+   019D ED                  511 	mov	a,r5
+   019E 64 64               512 	xrl	a,#0x64
+   01A0 C0 E0               513 	push	acc
+   01A2 74 64               514 	mov	a,#0x64
+   01A4 30 E7 02            515 	jnb	acc.7,00129$
+   01A7 F4                  516 	cpl	a
+   01A8 04                  517 	inc	a
+   01A9                     518 00129$:
+   01A9 F5 F0               519 	mov	b,a
+   01AB ED                  520 	mov	a,r5
+   01AC 30 E7 02            521 	jnb	acc.7,00130$
+   01AF F4                  522 	cpl	a
+   01B0 04                  523 	inc	a
+   01B1                     524 00130$:
+   01B1 84                  525 	div	ab
+   01B2 D0 E0               526 	pop	acc
+   01B4 20 D2 09            527 	jb	ov,00131$
+   01B7 30 E7 06            528 	jnb	acc.7,00131$
+   01BA C3                  529 	clr	c
+   01BB E4                  530 	clr	a
+   01BC 95 F0               531 	subb	a,b
+   01BE F5 F0               532 	mov	b,a
+   01C0                     533 00131$:
+   01C0 E5 F0               534 	mov	a,b
+                            535 ;     genPlus
+   01C2 24 30               536 	add	a,#0x30
+   01C4 F5 82               537 	mov	dpl,a
+                            538 ;     genCall
+   01C6 C0 05               539 	push	ar5
+   01C8 12s00r46            540 	lcall	_fn_putchar
+   01CB D0 05               541 	pop	ar5
+                            542 ;main.c:92: fn_putchar((r % 10) + '0');
+                            543 ;     genMod
+                            544 ;     genModOneByte
+   01CD ED                  545 	mov	a,r5
+   01CE 64 0A               546 	xrl	a,#0x0A
+   01D0 C0 E0               547 	push	acc
+   01D2 74 0A               548 	mov	a,#0x0A
+   01D4 30 E7 02            549 	jnb	acc.7,00132$
+   01D7 F4                  550 	cpl	a
+   01D8 04                  551 	inc	a
+   01D9                     552 00132$:
+   01D9 F5 F0               553 	mov	b,a
+   01DB ED                  554 	mov	a,r5
+   01DC 30 E7 02            555 	jnb	acc.7,00133$
+   01DF F4                  556 	cpl	a
+   01E0 04                  557 	inc	a
+   01E1                     558 00133$:
+   01E1 84                  559 	div	ab
+   01E2 D0 E0               560 	pop	acc
+   01E4 20 D2 09            561 	jb	ov,00134$
+   01E7 30 E7 06            562 	jnb	acc.7,00134$
+   01EA C3                  563 	clr	c
+   01EB E4                  564 	clr	a
+   01EC 95 F0               565 	subb	a,b
+   01EE F5 F0               566 	mov	b,a
+   01F0                     567 00134$:
+   01F0 E5 F0               568 	mov	a,b
+                            569 ;     genPlus
+   01F2 24 30               570 	add	a,#0x30
+   01F4 F5 82               571 	mov	dpl,a
+                            572 ;     genCall
+   01F6 C0 05               573 	push	ar5
+   01F8 12s00r46            574 	lcall	_fn_putchar
+   01FB D0 05               575 	pop	ar5
+                            576 ;main.c:93: fn_putchar('\0');
+                            577 ;     genCall
+   01FD 75 82 00            578 	mov	dpl,#0x00
+   0200 C0 05               579 	push	ar5
+   0202 12s00r46            580 	lcall	_fn_putchar
+   0205 D0 05               581 	pop	ar5
+                            582 ;main.c:94: fn_putchar(r);
+                            583 ;     genCall
+   0207 8D 82               584 	mov	dpl,r5
+   0209 C0 05               585 	push	ar5
+   020B 12s00r46            586 	lcall	_fn_putchar
+   020E D0 05               587 	pop	ar5
+   0210 02s00r69            588 	ljmp	00110$
+   0213                     589 00112$:
+   0213 22                  590 	ret
+                            591 	.area CSEG    (CODE)
+                            592 	.area XINIT   (CODE)

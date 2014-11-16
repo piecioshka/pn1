@@ -170,15 +170,24 @@ Symbol Table
     TR1                                                            008E 
     TR2                                                            00CA 
     TXD                                                            00B1 
-    _T1                                                         =  00B4 
+    _PCON                                                       =  0087 
+    _RI                                                         =  0098 
+    _SBUF                                                       =  0099 
+    _SCON                                                       =  0098 
+    _TCON                                                       =  0088 
+    _TH1                                                        =  008D 
+    _TI                                                         =  0099 
+    _TL1                                                        =  008B 
+    _TMOD                                                       =  0089 
   9 __interrupt_vect                                               0000 R
     __sdcc_external_startup                                        **** GX
   A __sdcc_gsinit_startup                                          0000 R
   A __sdcc_init_data                                               000D R
   9 __sdcc_program_startup                                         0033 R
   4 __start__stack                                                 0000 R
-    _bp                                                            **** GX
-  9 _main                                                          0038 GR
+  9 _fn_getchar                                                    0038 GR
+  9 _fn_putchar                                                    0046 GR
+  9 _main                                                          0054 GR
     a                                                              00D6 
     ac                                                             00D6 
     acc                                                            00E0 
@@ -372,7 +381,7 @@ Area Table
    6 BSEG                                                                               size    0   flags 80
    7 XSEG                                                                               size    0   flags 40
    8 XISEG                                                                              size    0   flags 40
-   9 CSEG                                                                               size   59   flags 20
+   9 CSEG                                                                               size   76   flags 20
    A GSINIT                                                                             size   3C   flags 20
    B GSFINAL                                                                            size    3   flags 20
    C HOME                                                                               size    0   flags 20

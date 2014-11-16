@@ -6,15 +6,15 @@ Direct Internal RAM:
    REG_BANK_2       0x10                  0        8   
    REG_BANK_3       0x18                  0        8   
    BSEG_BYTES       0x20                  0       16   
-   DATA             0x08     0x08         1      128   
+   DATA             0x08                  0      128   
    ---------------- -------- -------- -------- --------
-   TOTAL:           0x00     0x08         9      128   
+   TOTAL:           0x00     0x07         8      128   
 
-Stack starts at: 0x09 (sp set to 0x08) with 247 bytes available
+Stack starts at: 0x08 (sp set to 0x07) with 248 bytes available
 
 Other memory:
    Name             Start    End      Size     Max     
    ---------------- -------- -------- -------- --------
    INDIRECT RAM     0x80                  0      128   
    EXTERNAL RAM     0x0000                0    65536   
-   ROM/EPROM/FLASH  0x0000   0x009b     156    65536   
+   ROM/EPROM/FLASH  0x4000   0x4256     599    65536   

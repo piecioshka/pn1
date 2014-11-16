@@ -9,6 +9,7 @@ Area                               Addr   Size   Decimal Bytes (Attributes)
    --------  --------------------------------
      0000    l_BSEG
      0000    l_BSEG_BYTES
+     0000    l_DSEG
      0000    l_HOME
      0000    l_ISEG
      0000    l_OSEG
@@ -20,29 +21,28 @@ Area                               Addr   Size   Decimal Bytes (Attributes)
      0000    l_XSEG
      0000    l__CODE
      0000    s_BSEG
-     0000    s_CSEG
      0000    s_REG_BANK_0
      0000    s_XISEG
      0000    s_XSEG
      0000    s__CODE
-     0001    l_DSEG
      0001    l_SSEG
      0003    l_GSFINAL
      0008    l_REG_BANK_0
      0008    s_DSEG
+     0008    s_OSEG
      0008    s_REG_BANK_1
-     0009    s_OSEG
-     0009    s_SSEG
+     0008    s_SSEG
      0010    s_REG_BANK_2
      0018    s_REG_BANK_3
      0020    s_BSEG_BYTES
      003C    l_GSINIT
-     005D    l_CSEG
-     005D    s_GSINIT
      0080    s_ISEG
-     0099    s_GSFINAL
-     009C    s_HOME
-     009C    s_XINIT
+     0218    l_CSEG
+     4000    s_CSEG
+     4218    s_GSINIT
+     4254    s_GSFINAL
+     4257    s_HOME
+     4257    s_XINIT
 
 Hexadecimal
 
@@ -90,23 +90,19 @@ Hexadecimal
 
 Area                               Addr   Size   Decimal Bytes (Attributes)
 --------------------------------   ----   ----   ------- ----- ------------
-DSEG                               0008   0001 =      1. bytes (REL,CON)
-
-      Value  Global
-   --------  --------------------------------
-     0008    _bp
+DSEG                               0008   0000 =      0. bytes (REL,CON)
 
 Hexadecimal
 
 Area                               Addr   Size   Decimal Bytes (Attributes)
 --------------------------------   ----   ----   ------- ----- ------------
-OSEG                               0009   0000 =      0. bytes (REL,OVR)
+OSEG                               0008   0000 =      0. bytes (REL,OVR)
 
 Hexadecimal
 
 Area                               Addr   Size   Decimal Bytes (Attributes)
 --------------------------------   ----   ----   ------- ----- ------------
-SSEG                               0009   0001 =      1. bytes (REL,CON)
+SSEG                               0008   0001 =      1. bytes (REL,CON)
 
 Hexadecimal
 
@@ -130,52 +126,53 @@ Hexadecimal
 
 Area                               Addr   Size   Decimal Bytes (Attributes)
 --------------------------------   ----   ----   ------- ----- ------------
-CSEG                               0000   005D =     93. bytes (REL,CON,CODE)
+CSEG                               4000   0218 =    536. bytes (REL,CON,CODE)
 
       Value  Global
    --------  --------------------------------
-  0C:0038    _main
-  0C:0059    __sdcc_external_startup
+  0C:4038    _fn_getchar
+  0C:4046    _fn_putchar
+  0C:4054    _main
+  0C:4214    __sdcc_external_startup
 
 Hexadecimal
 
 Area                               Addr   Size   Decimal Bytes (Attributes)
 --------------------------------   ----   ----   ------- ----- ------------
-GSINIT                             005D   003C =     60. bytes (REL,CON,CODE)
+GSINIT                             4218   003C =     60. bytes (REL,CON,CODE)
 
 Hexadecimal
 
 Area                               Addr   Size   Decimal Bytes (Attributes)
 --------------------------------   ----   ----   ------- ----- ------------
-GSFINAL                            0099   0003 =      3. bytes (REL,CON,CODE)
+GSFINAL                            4254   0003 =      3. bytes (REL,CON,CODE)
 
 Hexadecimal
 
 Area                               Addr   Size   Decimal Bytes (Attributes)
 --------------------------------   ----   ----   ------- ----- ------------
-HOME                               009C   0000 =      0. bytes (REL,CON,CODE)
+HOME                               4257   0000 =      0. bytes (REL,CON,CODE)
 
 Hexadecimal
 
 Area                               Addr   Size   Decimal Bytes (Attributes)
 --------------------------------   ----   ----   ------- ----- ------------
-XINIT                              009C   0000 =      0. bytes (REL,CON,CODE)
+XINIT                              4257   0000 =      0. bytes (REL,CON,CODE)
 ASxxxx Linker V01.70 + NoICE + SDCC Feb 1999,  page 1.
 
 Files Linked	  [ module(s) ]
 
-main            
+main.rel        
 
 Libraries Linked		       [   object  file   ]
 
-n:\sdcc\\share\sdcc\lib\small/libsdcc.lib    [         _startup ]
-n:\sdcc\\share\sdcc\lib\small/libsdcc.lib    [              _bp ]
+N:\sdcc\share\sdcc\lib\small/libsdcc.lib    [         _startup ]
 
 ASxxxx Linker V01.70 + NoICE + SDCC Feb 1999,  page 2.
 
 User Base Address Definitions
 
-CSEG = 0x0000
+CSEG = 0x4000
 XSEG = 0x0000
 ISEG = 0x0080
 BSEG = 0x0000

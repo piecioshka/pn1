@@ -1,6 +1,6 @@
                               1 ;--------------------------------------------------------
                               2 ; File Created by SDCC : FreeWare ANSI-C Compiler
-                              3 ; Version 2.3.3 Sat Oct 11 15:08:03 2014
+                              3 ; Version 2.3.3 Sat Nov 15 14:09:41 2014
                               4 
                               5 ;--------------------------------------------------------
                               6 	.module main
@@ -28,7 +28,7 @@
                              28 ;--------------------------------------------------------
                              29 ; overlayable items in internal ram 
                              30 ;--------------------------------------------------------
-                             31 	.area	OSEG    (OVR,DATA)
+                             31 	.area OSEG    (OVR,DATA)
                              32 ;--------------------------------------------------------
                              33 ; Stack segment in internal ram 
                              34 ;--------------------------------------------------------
@@ -128,63 +128,69 @@
                             128 ;------------------------------------------------------------
                             129 ;Allocation info for local variables in function 'main'
                             130 ;------------------------------------------------------------
-                            131 ;------------------------------------------------------------
-                            132 ;Z:\projects\pn1\1\main.c:16: void main(void) {
-                            133 ;	-----------------------------------------
-                            134 ;	 function main
+                            131 ;i                         Allocated to registers 
+                            132 ;r                         Allocated to registers 
+                            133 ;------------------------------------------------------------
+                            134 ;Z:\projects\pn1\FDLMZB~0\1\main.c:16: void main(void) {
                             135 ;	-----------------------------------------
-   0038                     136 _main:
-                    0002    137 	ar2 = 0x02
-                    0003    138 	ar3 = 0x03
-                    0004    139 	ar4 = 0x04
-                    0005    140 	ar5 = 0x05
-                    0006    141 	ar6 = 0x06
-                    0007    142 	ar7 = 0x07
-                    0000    143 	ar0 = 0x00
-                    0001    144 	ar1 = 0x01
-                            145 ;Z:\projects\pn1\1\main.c:18: unsigned char i, r = 0;
-                            146 ;     genAssign
-   0038 7A 00               147 	mov	r2,#0x00
-   003A                     148 00108$:
-                            149 ;Z:\projects\pn1\1\main.c:22: if ((r & 0x01) == 0) {
-                            150 ;     genAnd
-   003A 74 01               151 	mov	a,#0x01
-   003C 5A                  152 	anl	a,r2
-   003D FB                  153 	mov	r3,a
-                            154 ;     genCmpEq
-                            155 ;       Peephole 132   changed ljmp to sjmp
-                            156 ;       Peephole 199   optimized misc jump sequence
-   003E BB 00 04            157 	cjne r3,#0x00,00102$
-                            158 ;00116$:
-                            159 ;       Peephole 200   removed redundant sjmp
-   0041                     160 00117$:
-                            161 ;Z:\projects\pn1\1\main.c:23: T1 = 0;
-                            162 ;     genAssign
-   0041 C2 B4               163 	clr	_T1
-                            164 ;       Peephole 132   changed ljmp to sjmp
-   0043 80 02               165 	sjmp 00103$
-   0045                     166 00102$:
-                            167 ;Z:\projects\pn1\1\main.c:25: T1 = 1;
-                            168 ;     genAssign
-   0045 D2 B4               169 	setb	_T1
-   0047                     170 00103$:
-                            171 ;Z:\projects\pn1\1\main.c:27: r++;
-                            172 ;     genPlus
-                            173 ;     genPlusIncr
-   0047 0A                  174 	inc	r2
-                            175 ;Z:\projects\pn1\1\main.c:28: for (i = 0; i < 70; i++);
-                            176 ;     genAssign
-   0048 7B 46               177 	mov	r3,#0x46
-   004A                     178 00106$:
-                            179 ;     genDjnz
-                            180 ;       Peephole 132   changed ljmp to sjmp
-                            181 ;       Peephole 205   optimized misc jump sequence
-   004A DB FE               182 	djnz r3,00106$
-   004C                     183 00118$:
-   004C                     184 00119$:
-                            185 ;       Peephole 132   changed ljmp to sjmp
-   004C 80 EC               186 	sjmp 00108$
-   004E                     187 00110$:
-   004E 22                  188 	ret
-                            189 	.area CSEG    (CODE)
-                            190 	.area XINIT   (CODE)
+                            136 ;	 function main
+                            137 ;	-----------------------------------------
+   0038                     138 _main:
+                    0002    139 	ar2 = 0x02
+                    0003    140 	ar3 = 0x03
+                    0004    141 	ar4 = 0x04
+                    0005    142 	ar5 = 0x05
+                    0006    143 	ar6 = 0x06
+                    0007    144 	ar7 = 0x07
+                    0000    145 	ar0 = 0x00
+                    0001    146 	ar1 = 0x01
+   0038 C0*00               147 	push	_bp
+   003A 85 81*00            148 	mov	_bp,sp
+                            149 ;Z:\projects\pn1\FDLMZB~0\1\main.c:18: unsigned char i, r = 0;
+                            150 ;     genAssign
+   003D 7A 00               151 	mov	r2,#0x00
+   003F                     152 00108$:
+                            153 ;Z:\projects\pn1\FDLMZB~0\1\main.c:22: if ((r & 0x01) == 0) {
+                            154 ;     genAnd
+   003F 74 01               155 	mov	a,#0x01
+   0041 5A                  156 	anl	a,r2
+   0042 FB                  157 	mov	r3,a
+                            158 ;     genCmpEq
+                            159 ;       Peephole 132   changed ljmp to sjmp
+                            160 ;       Peephole 199   optimized misc jump sequence
+   0043 BB 00 04            161 	cjne r3,#0x00,00102$
+                            162 ;00116$:
+                            163 ;       Peephole 200   removed redundant sjmp
+   0046                     164 00117$:
+                            165 ;Z:\projects\pn1\FDLMZB~0\1\main.c:23: T1 = 0;
+                            166 ;     genAssign
+   0046 C2 B4               167 	clr	_T1
+                            168 ;       Peephole 132   changed ljmp to sjmp
+   0048 80 02               169 	sjmp 00103$
+   004A                     170 00102$:
+                            171 ;Z:\projects\pn1\FDLMZB~0\1\main.c:25: T1 = 1;
+                            172 ;     genAssign
+   004A D2 B4               173 	setb	_T1
+   004C                     174 00103$:
+                            175 ;Z:\projects\pn1\FDLMZB~0\1\main.c:27: r++;
+                            176 ;     genPlus
+                            177 ;     genPlusIncr
+   004C 0A                  178 	inc	r2
+                            179 ;Z:\projects\pn1\FDLMZB~0\1\main.c:28: for (i = 0; i < 70; i++);
+                            180 ;     genAssign
+   004D 7B 46               181 	mov	r3,#0x46
+   004F                     182 00106$:
+                            183 ;     genDjnz
+                            184 ;       Peephole 132   changed ljmp to sjmp
+                            185 ;       Peephole 205   optimized misc jump sequence
+   004F DB FE               186 	djnz r3,00106$
+   0051                     187 00118$:
+   0051                     188 00119$:
+                            189 ;       Peephole 132   changed ljmp to sjmp
+   0051 80 EC               190 	sjmp 00108$
+   0053                     191 00110$:
+   0053 85*00 81            192 	mov	sp,_bp
+   0056 D0*00               193 	pop	_bp
+   0058 22                  194 	ret
+                            195 	.area CSEG    (CODE)
+                            196 	.area XINIT   (CODE)
