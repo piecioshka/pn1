@@ -1,3 +1,10 @@
+// sdcc -c main.c
+// sdcc --model-small --code-loc 0x4000 --xram-loc 0 main.rel
+// packihx main.ihx > main.hex
+//  - COPY content of main.hex into clipboard.
+//  - PUT char "q" into Tera Term
+//  - PASTE onto Tera Term (alt+v)
+
 #define SEG_A 0x02
 #define SEG_B 0x04
 #define SEG_C 0x40
@@ -25,58 +32,75 @@
 #define cyfra_e SEG_A | SEG_D | SEG_E | SEG_F | SEG_G
 #define cyfra_f SEG_A | SEG_E | SEG_F | SEG_G
 
-#define wysw_1 0xD0
-#define wysw_2 0xE0
-#define wysw_3 0x70
-#define wysw_4 0xB0
+#define wysw_1 0xD0 // 1101 0000
+#define wysw_2 0xE0 // 1110 0000
+#define wysw_3 0x70 // 0111 0000
+#define wysw_4 0xB0 // 1011 0000
 
 //------------------------------------------------------------------------------
 
+// Rejestr dla wyswietlacza
 xdata at 0x8000 unsigned char U15;
+// Rejestr segmentow
 xdata at 0xFFFF unsigned char U10;
 
 sfr at 0x88 TCON;
+// Ustawienie trybu pracy licznika
 sfr at 0x89 TMOD;
-sfr at 0x8C TH0;
-sfr at 0x8A TL0;
-// Rejestr wewnętrzny procesora zw. z bitem EA
+// Ustawienie predkosci transmisji
+sfr at 0x8D TH1;
+
+sfr at 0x8B TL1;
+// Rejestr wewnetrzny procesora zw. z bitem EA
 sfr at 0xA8 IE;
 
 //------------------------------------------------------------------------------
 
+// Lista znak�w kt�re zostana wyswietlone
 code char znak[16] = {cyfra_0, cyfra_1, cyfra_2, cyfra_3, cyfra_4, cyfra_5, cyfra_6, cyfra_7, cyfra_8, cyfra_9, cyfra_a, cyfra_b, cyfra_c, cyfra_d, cyfra_e, cyfra_f};
 
+// Lista wy�wietlaczy (4 na plytce).
 code char wysw[4] = {wysw_1, wysw_2, wysw_3, wysw_4};
 
 //------------------------------------------------------------------------------
 
-// Licznik
+// Zmienna globaln - indeks wyswietlacza
 unsigned char r = 0;
+
+// Cyfry do wyswietlenia.
 unsigned char buffer[4] = {0, 0, 0, 0};
 
 void LED(void) interrupt 1 {
-    // Wyłączenie poprzedniego wyświetlacza.
-    U10 = cyfra_n;
+	// Wylaczenie poprzedniego wyswietlacza.
+	U10 = cyfra_n;
 
-    // Wybranie wyświetlacza.
-    U15 = wysw[r];
+	// Wybranie wyswietlacza.
+	U15 = wysw[r];
 
-    // Wstawienie wartości
-    U10 = znak[buffer[r]];
+	// Wstawienie wartosci
+	U10 = znak[buffer[r]]; 
 
-    r++;
-    r &= 0x03;
+	// Aktualizujemy indeks o 1
+	r++;
+	
+	// Reset indeksu
+	r &= 0x03;
 }
 
 //------------------------------------------------------------------------------
 
-#define _CONST 0x06
-
 void Init(void) {
+    // Ustawienie trybu pracy licznika
     TMOD = (TMOD & 0xf0) | 0x02;
+
+    // Uruchamiamy przerwania licznik
     TCON = 0x10;
-    TL0 = TH0 = _CONST;
-    IE = 0x82; // 10000010;
+
+    // Ustawienie predkosci transmisji
+    TL1 = TH1 = 0x06;
+
+    // zezwolenie na przyjmowanie przerwan
+    IE = 0x82;
 }
 
 //------------------------------------------------------------------------------
@@ -89,20 +113,31 @@ void pause() {
 //------------------------------------------------------------------------------
 
 void main(void) {
+   // Zerujemy licznik.
    unsigned char r = 0;
-
+  
+   // Inicjalizujemy rejestry.
    Init();
-
+   
    for (;;) {
+      // Opozniamy petle
       pause();
-
+      
+      // Jesli jestesma na koncu taktu licznika, to aktualizujemy wartosci w buforze.
       if (r == 255) {
+           // Rosnaca wartosc na 2 pozycji.
            buffer[1]++;
+           // ... mnozymy przez 0015, aby nie wyszlo po za zakres 15 (F).
            buffer[1] = buffer[1] & 0x0f;
-           buffer[0] = 0x0f - buffer[1];
-           r = 0;
-      }
 
+           // Malejacy wartosc z 1 pozycji, Odejmujemy od 15 wybrana wartosc w poprzedniej linijce.
+           buffer[0] = 0x0f - buffer[1];
+           
+           // Resetujemy licznik.
+           r = 0;
+      }     
+      
+      // Aktualizujemy licznik (zwiekszajac go o 1 - najwolniejsze skoki w liczniku).
       r++; 
    }
 }
