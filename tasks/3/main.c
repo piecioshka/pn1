@@ -99,7 +99,7 @@ void Init(void) {
     // Ustawienie predkosci transmisji
     TL1 = TH1 = 0x06;
 
-    // zezwolenie na przyjmowanie przerwan
+    // Zezwolenie na przyjmowanie przerwan
     IE = 0x82;
 }
 

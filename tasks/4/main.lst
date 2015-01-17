@@ -1,0 +1,436 @@
+                              1 ;--------------------------------------------------------
+                              2 ; File Created by SDCC : FreeWare ANSI-C Compiler
+                              3 ; Version 2.3.3 Sat Jan 17 14:35:18 2015
+                              4 
+                              5 ;--------------------------------------------------------
+                              6 	.module main
+                              7 	
+                              8 ;--------------------------------------------------------
+                              9 ; Public variables in this module
+                             10 ;--------------------------------------------------------
+                             11 	.globl _wk_
+                             12 	.globl _znak
+                             13 	.globl _main
+                             14 	.globl _InitLED
+                             15 	.globl _LED
+                             16 	.globl _U10
+                             17 	.globl _U12
+                             18 	.globl _U15
+                             19 	.globl _key
+                             20 	.globl _t
+                             21 	.globl _buffer
+                             22 ;--------------------------------------------------------
+                             23 ; special function registers
+                             24 ;--------------------------------------------------------
+                    0088     25 _TCON	=	0x0088
+                    0089     26 _TMOD	=	0x0089
+                    008D     27 _TH1	=	0x008d
+                    008B     28 _TL1	=	0x008b
+                    00A8     29 _IE	=	0x00a8
+                             30 ;--------------------------------------------------------
+                             31 ; special function bits 
+                             32 ;--------------------------------------------------------
+                             33 ;--------------------------------------------------------
+                             34 ; overlayable register banks 
+                             35 ;--------------------------------------------------------
+                             36 	.area REG_BANK_0	(REL,OVR,DATA)
+   0000                      37 	.ds 8
+                             38 ;--------------------------------------------------------
+                             39 ; internal ram data
+                             40 ;--------------------------------------------------------
+                             41 	.area DSEG    (DATA)
+   0000                      42 _buffer::
+   0000                      43 	.ds 4
+   0004                      44 _t::
+   0004                      45 	.ds 1
+   0005                      46 _key::
+   0005                      47 	.ds 1
+                             48 ;--------------------------------------------------------
+                             49 ; overlayable items in internal ram 
+                             50 ;--------------------------------------------------------
+                             51 	.area OSEG    (OVR,DATA)
+                             52 ;--------------------------------------------------------
+                             53 ; Stack segment in internal ram 
+                             54 ;--------------------------------------------------------
+                             55 	.area	SSEG	(DATA)
+   0000                      56 __start__stack:
+   0000                      57 	.ds	1
+                             58 
+                             59 ;--------------------------------------------------------
+                             60 ; indirectly addressable internal ram data
+                             61 ;--------------------------------------------------------
+                             62 	.area ISEG    (DATA)
+                             63 ;--------------------------------------------------------
+                             64 ; bit data
+                             65 ;--------------------------------------------------------
+                             66 	.area BSEG    (BIT)
+                             67 ;--------------------------------------------------------
+                             68 ; external ram data
+                             69 ;--------------------------------------------------------
+                             70 	.area XSEG    (XDATA)
+                    8000     71 _U15	=	0x8000
+                    8000     72 _U12	=	0x8000
+                    FFFF     73 _U10	=	0xffff
+                             74 ;--------------------------------------------------------
+                             75 ; external initialized ram data
+                             76 ;--------------------------------------------------------
+                             77 	.area XISEG   (XDATA)
+                             78 ;--------------------------------------------------------
+                             79 ; interrupt vector 
+                             80 ;--------------------------------------------------------
+                             81 	.area CSEG    (CODE)
+   0000                      82 __interrupt_vect:
+   0000 02s00r00             83 	ljmp	__sdcc_gsinit_startup
+   0003 32                   84 	reti
+   0004                      85 	.ds	7
+   000B 02s00r38             86 	ljmp	_LED
+   000E                      87 	.ds	5
+   0013 32                   88 	reti
+   0014                      89 	.ds	7
+   001B 32                   90 	reti
+   001C                      91 	.ds	7
+   0023 32                   92 	reti
+   0024                      93 	.ds	7
+   002B 32                   94 	reti
+   002C                      95 	.ds	7
+                             96 ;--------------------------------------------------------
+                             97 ; global & static initialisations
+                             98 ;--------------------------------------------------------
+                             99 	.area GSINIT  (CODE)
+                            100 	.area GSFINAL (CODE)
+                            101 	.area GSINIT  (CODE)
+   0000                     102 __sdcc_gsinit_startup:
+   0000 75 81rFF            103 	mov	sp,#__start__stack - 1
+   0003 12s00r00            104 	lcall	__sdcc_external_startup
+   0006 E5 82               105 	mov	a,dpl
+   0008 60 03               106 	jz	__sdcc_init_data
+   000A 02s00r33            107 	ljmp	__sdcc_program_startup
+   000D                     108 __sdcc_init_data:
+                            109 ;	_mcs51_genXINIT() start
+   000D 74r00               110 	mov	a,#l_XINIT
+   000F 44s00               111 	orl	a,#l_XINIT>>8
+   0011 60 29               112 	jz	00003$
+   0013 74r00               113 	mov	a,#s_XINIT
+   0015 24r00               114 	add	a,#l_XINIT
+   0017 F9                  115 	mov	r1,a
+   0018 74s00               116 	mov	a,#s_XINIT>>8
+   001A 34s00               117 	addc	a,#l_XINIT>>8
+   001C FA                  118 	mov	r2,a
+   001D 90s00r00            119 	mov	dptr,#s_XINIT
+   0020 78r00               120 	mov	r0,#s_XISEG
+   0022 75 A0s00            121 	mov	p2,#(s_XISEG >> 8)
+   0025 E4                  122 00001$:	clr	a
+   0026 93                  123 	movc	a,@a+dptr
+   0027 F2                  124 	movx	@r0,a
+   0028 A3                  125 	inc	dptr
+   0029 08                  126 	inc	r0
+   002A B8 00 02            127 	cjne	r0,#0,00002$
+   002D 05 A0               128 	inc	p2
+   002F E5 82               129 00002$:	mov	a,dpl
+   0031 B5 01 F1            130 	cjne	a,ar1,00001$
+   0034 E5 83               131 	mov	a,dph
+   0036 B5 02 EC            132 	cjne	a,ar2,00001$
+   0039 75 A0 FF            133 	mov	p2,#0xFF
+   003C                     134 00003$:
+                            135 ;	_mcs51_genXINIT() end
+                            136 ;N:\projects\pn1-labs\tasks\4\main.c:58: unsigned char buffer[4] = {0, 0, 0, 0};
+                            137 ;     genPointerSet
+                            138 ;     genNearPointerSet
+                            139 ;     genDataPointerSet
+   003C 75*00 00            140 	mov	_buffer,#0x00
+                            141 ;     genPointerSet
+                            142 ;     genNearPointerSet
+                            143 ;     genDataPointerSet
+   003F 75*01 00            144 	mov	(_buffer + 0x0001),#0x00
+                            145 ;     genPointerSet
+                            146 ;     genNearPointerSet
+                            147 ;     genDataPointerSet
+   0042 75*02 00            148 	mov	(_buffer + 0x0002),#0x00
+                            149 ;     genPointerSet
+                            150 ;     genNearPointerSet
+                            151 ;     genDataPointerSet
+   0045 75*03 00            152 	mov	(_buffer + 0x0003),#0x00
+                            153 ;N:\projects\pn1-labs\tasks\4\main.c:59: unsigned char t = 0;
+                            154 ;     genAssign
+   0048 75*04 00            155 	mov	_t,#0x00
+                            156 ;N:\projects\pn1-labs\tasks\4\main.c:60: unsigned char key = 0;
+                            157 ;     genAssign
+   004B 75*05 00            158 	mov	_key,#0x00
+                            159 	.area GSFINAL (CODE)
+   0000 02s00r33            160 	ljmp	__sdcc_program_startup
+                            161 ;--------------------------------------------------------
+                            162 ; Home
+                            163 ;--------------------------------------------------------
+                            164 	.area HOME    (CODE)
+                            165 	.area CSEG    (CODE)
+                            166 ;--------------------------------------------------------
+                            167 ; code
+                            168 ;--------------------------------------------------------
+                            169 	.area CSEG    (CODE)
+   0033                     170 __sdcc_program_startup:
+   0033 12s00rC3            171 	lcall	_main
+                            172 ;	return from main will lock up
+   0036 80 FE               173 	sjmp .
+                            174 ;------------------------------------------------------------
+                            175 ;Allocation info for local variables in function 'LED'
+                            176 ;------------------------------------------------------------
+                            177 ;zz                        Allocated to registers r2 
+                            178 ;------------------------------------------------------------
+                            179 ;N:\projects\pn1-labs\tasks\4\main.c:62: void LED(void) interrupt 1
+                            180 ;	-----------------------------------------
+                            181 ;	 function LED
+                            182 ;	-----------------------------------------
+   0038                     183 _LED:
+                    0002    184 	ar2 = 0x02
+                    0003    185 	ar3 = 0x03
+                    0004    186 	ar4 = 0x04
+                    0005    187 	ar5 = 0x05
+                    0006    188 	ar6 = 0x06
+                    0007    189 	ar7 = 0x07
+                    0000    190 	ar0 = 0x00
+                    0001    191 	ar1 = 0x01
+   0038 C0 E0               192 	push	acc
+   003A C0 F0               193 	push	b
+   003C C0 82               194 	push	dpl
+   003E C0 83               195 	push	dph
+   0040 C0 02               196 	push	ar2
+   0042 C0 00               197 	push	ar0
+   0044 C0 D0               198 	push	psw
+   0046 75 D0 00            199 	mov	psw,#0x00
+                            200 ;N:\projects\pn1-labs\tasks\4\main.c:66: U10 = cyfra_n;
+                            201 ;     genAssign
+   0049 90 FF FF            202 	mov	dptr,#_U10
+                            203 ;       Peephole 180   changed mov to clr
+   004C E4                  204 	clr  a
+   004D F0                  205 	movx	@dptr,a
+                            206 ;N:\projects\pn1-labs\tasks\4\main.c:67: U15 = wk_[t];
+                            207 ;     genPlus
+   004E E5*04               208 	mov	a,_t
+                            209 ;       Peephole 180   changed mov to clr
+                            210 ;     genPointerGet
+                            211 ;     genCodePointerGet
+                            212 ;       Peephole 186   optimized movc sequence
+   0050 90s00rFA            213 	mov  dptr,#_wk_
+   0053 93                  214 	movc a,@a+dptr
+                            215 ;     genAssign
+                            216 ;       Peephole 100   removed redundant mov
+   0054 FA                  217 	mov  r2,a
+   0055 90 80 00            218 	mov  dptr,#_U15
+   0058 F0                  219 	movx @dptr,a
+                            220 ;N:\projects\pn1-labs\tasks\4\main.c:70: zz = (U12 & 0xf0) >> 4;
+                            221 ;     genAssign
+   0059 90 80 00            222 	mov	dptr,#_U12
+   005C E0                  223 	movx	a,@dptr
+                            224 ;     genAnd
+                            225 ;     genRightShift
+                            226 ;     genRightShiftLiteral
+                            227 ;     genrshOne
+                            228 ;       Peephole 139   removed redundant mov
+   005D 54 F0               229 	anl  a,#0xF0
+   005F FA                  230 	mov  r2,a
+   0060 C4                  231 	swap	a
+   0061 54 0F               232 	anl	a,#0x0f
+   0063 FA                  233 	mov	r2,a
+                            234 ;N:\projects\pn1-labs\tasks\4\main.c:72: if(zz != 0x0f){
+                            235 ;     genCmpEq
+   0064 BA 0F 02            236 	cjne	r2,#0x0F,00121$
+                            237 ;       Peephole 132   changed ljmp to sjmp
+   0067 80 27               238 	sjmp 00113$
+   0069                     239 00121$:
+                            240 ;N:\projects\pn1-labs\tasks\4\main.c:74: if(zz == 0x07)    // 0111
+                            241 ;     genCmpEq
+                            242 ;       Peephole 132   changed ljmp to sjmp
+                            243 ;       Peephole 199   optimized misc jump sequence
+   0069 BA 07 05            244 	cjne r2,#0x07,00110$
+                            245 ;00122$:
+                            246 ;       Peephole 200   removed redundant sjmp
+   006C                     247 00123$:
+                            248 ;N:\projects\pn1-labs\tasks\4\main.c:75: key = 0x00 | t; // 0000
+                            249 ;     genOr
+   006C 85*04*05            250 	mov	_key,_t
+                            251 ;       Peephole 132   changed ljmp to sjmp
+   006F 80 1F               252 	sjmp 00113$
+   0071                     253 00110$:
+                            254 ;N:\projects\pn1-labs\tasks\4\main.c:77: if(zz == 0x0b)    // 1011
+                            255 ;     genCmpEq
+                            256 ;       Peephole 132   changed ljmp to sjmp
+                            257 ;       Peephole 199   optimized misc jump sequence
+   0071 BA 0B 08            258 	cjne r2,#0x0B,00107$
+                            259 ;00124$:
+                            260 ;       Peephole 200   removed redundant sjmp
+   0074                     261 00125$:
+                            262 ;N:\projects\pn1-labs\tasks\4\main.c:78: key = 0x04 | t; // ... (0100)
+                            263 ;     genOr
+   0074 74 04               264 	mov	a,#0x04
+   0076 45*04               265 	orl	a,_t
+   0078 F5*05               266 	mov	_key,a
+                            267 ;       Peephole 132   changed ljmp to sjmp
+   007A 80 14               268 	sjmp 00113$
+   007C                     269 00107$:
+                            270 ;N:\projects\pn1-labs\tasks\4\main.c:80: if(zz == 0x0d)    // ... (1101)
+                            271 ;     genCmpEq
+                            272 ;       Peephole 132   changed ljmp to sjmp
+                            273 ;       Peephole 199   optimized misc jump sequence
+   007C BA 0D 08            274 	cjne r2,#0x0D,00104$
+                            275 ;00126$:
+                            276 ;       Peephole 200   removed redundant sjmp
+   007F                     277 00127$:
+                            278 ;N:\projects\pn1-labs\tasks\4\main.c:81: key = 0x08 | t; // ... (1000)
+                            279 ;     genOr
+   007F 74 08               280 	mov	a,#0x08
+   0081 45*04               281 	orl	a,_t
+   0083 F5*05               282 	mov	_key,a
+                            283 ;       Peephole 132   changed ljmp to sjmp
+   0085 80 09               284 	sjmp 00113$
+   0087                     285 00104$:
+                            286 ;N:\projects\pn1-labs\tasks\4\main.c:83: if(zz == 0x0e)    // 1110
+                            287 ;     genCmpEq
+                            288 ;       Peephole 132   changed ljmp to sjmp
+                            289 ;       Peephole 199   optimized misc jump sequence
+   0087 BA 0E 06            290 	cjne r2,#0x0E,00113$
+                            291 ;00128$:
+                            292 ;       Peephole 200   removed redundant sjmp
+   008A                     293 00129$:
+                            294 ;N:\projects\pn1-labs\tasks\4\main.c:84: key = 0x0c | t; // 1100
+                            295 ;     genOr
+   008A 74 0C               296 	mov	a,#0x0C
+   008C 45*04               297 	orl	a,_t
+   008E F5*05               298 	mov	_key,a
+   0090                     299 00113$:
+                            300 ;N:\projects\pn1-labs\tasks\4\main.c:87: U10 = buffer[t];
+                            301 ;     genPlus
+   0090 E5*04               302 	mov	a,_t
+   0092 24r00               303 	add	a,#_buffer
+   0094 F8                  304 	mov	r0,a
+                            305 ;     genPointerGet
+                            306 ;     genNearPointerGet
+   0095 90 FF FF            307 	mov	dptr,#_U10
+   0098 E6                  308 	mov	a,@r0
+   0099 F0                  309 	movx	@dptr,a
+                            310 ;N:\projects\pn1-labs\tasks\4\main.c:89: t++;
+                            311 ;     genPlus
+                            312 ;     genPlusIncr
+   009A 05*04               313 	inc	_t
+                            314 ;N:\projects\pn1-labs\tasks\4\main.c:90: t &= 0x03; // ... (Dzialamy tylko na 4 wyswietlaczach)
+                            315 ;     genAnd
+   009C 53r04 03            316 	anl	_t,#0x03
+   009F                     317 00114$:
+   009F D0 D0               318 	pop	psw
+   00A1 D0 00               319 	pop	ar0
+   00A3 D0 02               320 	pop	ar2
+   00A5 D0 83               321 	pop	dph
+   00A7 D0 82               322 	pop	dpl
+   00A9 D0 F0               323 	pop	b
+   00AB D0 E0               324 	pop	acc
+   00AD 32                  325 	reti
+                            326 ;------------------------------------------------------------
+                            327 ;Allocation info for local variables in function 'InitLED'
+                            328 ;------------------------------------------------------------
+                            329 ;------------------------------------------------------------
+                            330 ;N:\projects\pn1-labs\tasks\4\main.c:94: void InitLED(void)
+                            331 ;	-----------------------------------------
+                            332 ;	 function InitLED
+                            333 ;	-----------------------------------------
+   00AE                     334 _InitLED:
+                            335 ;N:\projects\pn1-labs\tasks\4\main.c:96: TMOD = (TMOD & 0xf0) | 0x02; // ... (Ustawienie trybu pracy licznika)
+                            336 ;     genAnd
+   00AE 74 F0               337 	mov	a,#0xF0
+   00B0 55 89               338 	anl	a,_TMOD
+                            339 ;     genOr
+   00B2 44 02               340 	orl	a,#0x02
+   00B4 F5 89               341 	mov	_TMOD,a
+                            342 ;N:\projects\pn1-labs\tasks\4\main.c:97: TCON = 0x10; // ... (Uruchamiamy przerwania licznik)
+                            343 ;     genAssign
+   00B6 75 88 10            344 	mov	_TCON,#0x10
+                            345 ;N:\projects\pn1-labs\tasks\4\main.c:98: TL1 = TH1 = 0x06; // ..., ..., ... (Ustawienie predkosci transmisji)
+                            346 ;     genAssign
+   00B9 75 8D 06            347 	mov	_TH1,#0x06
+                            348 ;     genAssign
+   00BC 75 8B 06            349 	mov	_TL1,#0x06
+                            350 ;N:\projects\pn1-labs\tasks\4\main.c:99: IE = 0x82; // ... (Zezwolenie na przyjmowanie przerwan)
+                            351 ;     genAssign
+   00BF 75 A8 82            352 	mov	_IE,#0x82
+   00C2                     353 00101$:
+   00C2 22                  354 	ret
+                            355 ;------------------------------------------------------------
+                            356 ;Allocation info for local variables in function 'main'
+                            357 ;------------------------------------------------------------
+                            358 ;------------------------------------------------------------
+                            359 ;N:\projects\pn1-labs\tasks\4\main.c:103: void main(void){
+                            360 ;	-----------------------------------------
+                            361 ;	 function main
+                            362 ;	-----------------------------------------
+   00C3                     363 _main:
+                            364 ;N:\projects\pn1-labs\tasks\4\main.c:105: InitLED();
+                            365 ;     genCall
+   00C3 12s00rAE            366 	lcall	_InitLED
+   00C6                     367 00102$:
+                            368 ;N:\projects\pn1-labs\tasks\4\main.c:109: buffer[0] = znak[~U12 & 0x0f];
+                            369 ;     genAssign
+   00C6 90 80 00            370 	mov	dptr,#_U12
+   00C9 E0                  371 	movx	a,@dptr
+                            372 ;     genCpl
+                            373 ;       Peephole 105   removed redundant mov
+                            374 ;       Peephole 184   removed redundant mov
+   00CA F4                  375 	cpl  a
+   00CB FA                  376 	mov  r2,a
+                            377 ;     genAnd
+   00CC 74 0F               378 	mov	a,#0x0F
+   00CE 5A                  379 	anl	a,r2
+                            380 ;     genPlus
+   00CF 24rEA               381 	add	a,#_znak
+   00D1 F5 82               382 	mov	dpl,a
+   00D3 74s00               383 	mov	a,#(_znak >> 8)
+   00D5 34 00               384 	addc	a,#0x00
+   00D7 F5 83               385 	mov	dph,a
+                            386 ;     genPointerGet
+                            387 ;     genCodePointerGet
+   00D9 E4                  388 	clr	a
+   00DA 93                  389 	movc	a,@a+dptr
+   00DB FA                  390 	mov	r2,a
+                            391 ;     genPointerSet
+                            392 ;     genNearPointerSet
+                            393 ;     genDataPointerSet
+   00DC 8A*00               394 	mov	_buffer,r2
+                            395 ;N:\projects\pn1-labs\tasks\4\main.c:110: buffer[1] = znak[key];
+                            396 ;     genPlus
+   00DE E5*05               397 	mov	a,_key
+                            398 ;       Peephole 180   changed mov to clr
+                            399 ;     genPointerGet
+                            400 ;     genCodePointerGet
+                            401 ;       Peephole 186   optimized movc sequence
+   00E0 90s00rEA            402 	mov  dptr,#_znak
+   00E3 93                  403 	movc a,@a+dptr
+   00E4 FA                  404 	mov	r2,a
+                            405 ;     genPointerSet
+                            406 ;     genNearPointerSet
+                            407 ;     genDataPointerSet
+   00E5 8A*01               408 	mov	(_buffer + 0x0001),r2
+                            409 ;       Peephole 132   changed ljmp to sjmp
+   00E7 80 DD               410 	sjmp 00102$
+   00E9                     411 00104$:
+   00E9 22                  412 	ret
+                            413 	.area CSEG    (CODE)
+   00EA                     414 _znak:
+   00EA 5F                  415 	.db #0x5F
+   00EB 44                  416 	.db #0x44
+   00EC 3E                  417 	.db #0x3E
+   00ED 76                  418 	.db #0x76
+   00EE 65                  419 	.db #0x65
+   00EF 73                  420 	.db #0x73
+   00F0 7B                  421 	.db #0x7B
+   00F1 46                  422 	.db #0x46
+   00F2 7F                  423 	.db #0x7F
+   00F3 77                  424 	.db #0x77
+   00F4 6F                  425 	.db #0x6F
+   00F5 79                  426 	.db #0x79
+   00F6 1B                  427 	.db #0x1B
+   00F7 7C                  428 	.db #0x7C
+   00F8 3B                  429 	.db #0x3B
+   00F9 2B                  430 	.db #0x2B
+   00FA                     431 _wk_:
+   00FA DE                  432 	.db #0xDE
+   00FB ED                  433 	.db #0xED
+   00FC 7B                  434 	.db #0x7B
+   00FD B7                  435 	.db #0xB7
+                            436 	.area XINIT   (CODE)
